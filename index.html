@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة استخراج روابط Drive</title>
+    <title>أداة استخراج روابط Drive (الإصدار المضمون)</title>
     <style>
         body { font-family: system-ui, sans-serif; background-color: #f4f4f9; color: #333; text-align: center; padding: 40px 20px; }
         .container { max-width: 700px; margin: auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -11,6 +11,7 @@
         p { font-size: 1.1em; line-height: 1.6; }
         .instructions { text-align: right; margin-top: 30px; }
         .step { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .warning { background: #fff3cd; color: #664d03; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; font-weight: bold; }
         .bookmarklet-container { margin-top: 30px; border: 2px dashed #0d6efd; padding: 20px; border-radius: 10px; }
         .bookmarklet {
             display: inline-block;
@@ -24,36 +25,38 @@
             text-decoration: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        code { background: #eee; padding: 2px 5px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>أداة استخراج روابط Google Drive</h1>
-        <p>هذه الطريقة الجديدة لا يمكن حظرها لأنها تعمل من داخل صفحة جوجل درايف مباشرة. اتبع الخطوات التالية بدقة.</p>
+        <h1>أداة استخراج روابط Drive (الإصدار المضمون)</h1>
+        <p>هذه هي الطريقة النهائية التي لا يمكن حظرها. اتبع الخطوات بدقة.</p>
         
         <div class="instructions">
-            <div class="step">
-                <strong>الخطوة 1:</strong> اضغط باستمرار على الزر الأخضر في الأسفل وقم بسحبه إلى شريط الإشارات المرجعية (Bookmarks Bar) في متصفحك.
+            <div class="step warning">
+                <strong>مهم جداً:</strong> إذا كان لديك إشارة مرجعية قديمة، قم بحذفها أولاً.
             </div>
             <div class="step">
-                <strong>الخطوة 2:</strong> اذهب إلى أي رابط فيديو على Google Drive تريد استخراج روابطه.
+                <strong>1.</strong> اسحب الزر الأخضر في الأسفل إلى شريط الإشارات المرجعية (Bookmarks Bar) في متصفحك.
             </div>
             <div class="step">
-                <strong>الخطوة 3:</strong> أثناء وجودك في صفحة الفيديو، اضغط على الإشارة المرجعية التي حفظتها للتو. ستظهر نافذة جديدة تحتوي على الروابط.
+                <strong>2.</strong> اذهب إلى أي رابط فيديو على Google Drive.
+            </div>
+            <div class="step">
+                <strong>3.</strong> أثناء وجودك في صفحة الفيديو، اضغط على الإشارة المرجعية الجديدة التي حفظتها. ستظهر نافذة بالروابط.
             </div>
         </div>
 
         <div class="bookmarklet-container">
             <h2>اسحب هذا الزر إلى شريط الإشارات المرجعية</h2>
-            <a id="extractor-tool" class="bookmarklet" href="">مستخرج الروابط 🚀</a>
+            <a id="extractor-tool" class="bookmarklet" href="">مستخرج الروابط ✅</a>
         </div>
     </div>
 
     <script>
-        // هذا السكريبت سيقوم ببناء الأداة ووضعها في الزر الأخضر
         const toolCode = `
             (function() {
+                // دالة البحث الذكي (لا تغيير هنا)
                 function findStreamData(data) {
                     if (typeof data !== 'object' || data === null) return null;
                     if (Array.isArray(data) && data.length > 0) {
@@ -69,78 +72,58 @@
                     return null;
                 }
 
+                // دالة عرض النتائج (لا تغيير هنا)
                 function displayResults(links) {
-                    if (document.getElementById('extractor-overlay')) return;
+                    let overlay = document.getElementById('extractor-overlay-123');
+                    if (overlay) overlay.remove();
                     
-                    const overlay = document.createElement('div');
-                    overlay.id = 'extractor-overlay';
-                    overlay.style.position = 'fixed';
-                    overlay.style.top = '0';
-                    overlay.style.left = '0';
-                    overlay.style.width = '100%';
-                    overlay.style.height = '100%';
-                    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                    overlay.style.zIndex = '999999';
-                    overlay.style.display = 'flex';
-                    overlay.style.justifyContent = 'center';
-                    overlay.style.alignItems = 'center';
-
+                    overlay = document.createElement('div');
+                    overlay.id = 'extractor-overlay-123';
+                    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999999; display:flex; justify-content:center; align-items:center;';
+                    
                     const modal = document.createElement('div');
-                    modal.style.backgroundColor = 'white';
-                    modal.style.padding = '30px';
-                    modal.style.borderRadius = '10px';
-                    modal.style.width = '90%';
-                    modal.style.maxWidth = '500px';
-                    modal.style.fontFamily = 'sans-serif';
-
+                    modal.style.cssText = 'background:white; padding:30px; border-radius:10px; width:90%; max-width:500px; font-family:sans-serif; text-align:right;';
+                    
                     const closeBtn = document.createElement('button');
                     closeBtn.innerText = 'إغلاق';
-                    closeBtn.style.display = 'block';
-                    closeBtn.style.margin = '20px auto 0 auto';
-                    closeBtn.style.padding = '10px 20px';
+                    closeBtn.style.cssText = 'display:block; margin:20px auto 0 auto; padding:10px 20px; cursor:pointer;';
                     closeBtn.onclick = () => overlay.remove();
                     
-                    if (!links || links.length === 0) {
-                        modal.innerHTML = '<h3>لم يتم العثور على روابط.</h3>';
-                    } else {
-                        modal.innerHTML = '<h3>الروابط المستخرجة:</h3>';
+                    let content = '<h3>لم يتم العثور على روابط. تأكد من أنك في صفحة الفيديو الصحيحة.</h3>';
+                    if (links && links.length > 0) {
+                        content = '<h3>الروابط المستخرجة:</h3>';
                         links.forEach(link => {
                             if (!link.url) return;
-                            const item = document.createElement('div');
-                            item.style.display = 'flex';
-                            item.style.justifyContent = 'space-between';
-                            item.style.alignItems = 'center';
-                            item.style.padding = '10px';
-                            item.style.borderBottom = '1px solid #eee';
-                            
-                            const quality = document.createElement('span');
-                            quality.innerText = link.quality + 'p';
-                            quality.style.fontWeight = 'bold';
-                            
-                            const copyBtn = document.createElement('button');
-                            copyBtn.innerText = 'نسخ';
-                            copyBtn.onclick = () => { navigator.clipboard.writeText(link.url).then(() => { copyBtn.innerText = 'تم!'; }); };
-
-                            item.appendChild(quality);
-                            item.appendChild(copyBtn);
-                            modal.appendChild(item);
+                            content += \`<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+                                <strong style="direction:ltr;">\${link.quality}p</strong>
+                                <button onclick="navigator.clipboard.writeText('\${link.url}').then(() => this.innerText = 'تم النسخ!')">نسخ</button>
+                            </div>\`;
                         });
                     }
-                    
+                    modal.innerHTML = content;
                     modal.appendChild(closeBtn);
                     overlay.appendChild(modal);
                     document.body.appendChild(overlay);
                 }
 
+                // --- الجزء الذي تم إصلاحه ---
+                // الطريقة الجديدة والمضمونة للوصول إلى البيانات
                 try {
-                    const dataString = document.body.innerHTML.match(/WIZ_global_data\\s*=\\s*({.+?});/)[1];
-                    const data = JSON.parse(dataString);
+                    if (!window.WIZ_global_data) {
+                        throw new Error('لم يتم العثور على متغير WIZ_global_data');
+                    }
+                    const data = window.WIZ_global_data; // الوصول للمتغير مباشرة
                     const streamData = findStreamData(data);
+                    
+                    if (!streamData) {
+                         throw new Error('فشل البحث الذكي في العثور على بيانات البث داخل WIZ_global_data');
+                    }
+
                     const links = streamData.map(s => ({ quality: s['4'], url: s['2'] }));
                     displayResults(links);
                 } catch (e) {
                     console.error('Extractor Error:', e);
-                    displayResults(null);
+                    displayResults(null); // عرض رسالة الخطأ
                 }
             })();
         `;

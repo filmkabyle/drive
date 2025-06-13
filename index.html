@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مستخرج روابط Google Drive (الإصدار النهائي)</title>
+    <title>مستخرج روابط Google Drive (إصدار محدّث)</title>
     <style>
         body { font-family: system-ui, sans-serif; background-color: #f0f2f5; color: #1c1e21; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .container { width: 100%; max-width: 600px; background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
@@ -26,7 +26,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>مستخرج روابط Google Drive (الإصدار النهائي)</h1>
+        <h1>مستخرج روابط Google Drive (إصدار محدّث)</h1>
         <input type="url" id="gdrive-url" placeholder="أدخل رابط جوجل درايف هنا..." value="https://drive.google.com/file/d/14vOckU9B3fT2KbZdSGq69OxAd_ioE0da/view">
         <button id="extract-btn" onclick="extractLinks()">استخراج الروابط</button>
         <div class="loader" id="loader"> <div class="bounce1"></div> <div class="bounce2"></div> <div class="bounce3"></div> </div>
@@ -39,16 +39,47 @@
         const YOUR_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFQwZl6RVqO34o2aYXlPXzOVpl4rO7QzuHRm9xIEAMtYwUydtSXsirGPwoGaD7xMAm/exec';
         // =================================================================
 
-        function findStreamData(data) { if (typeof data !== 'object' || data === null) return null; if (Array.isArray(data)) { const f = data[0]; if (Array.isArray(f) && f.length >= 3 && typeof f[0] === 'number' && typeof f[2] === 'string' && f[2].startsWith('http')) return data; } for (const k in data) { const r = findStreamData(data[k]); if (r) return r; } return null; }
-        function displayResults(links) { const rDiv = document.getElementById('results'); rDiv.innerHTML = ''; if (links.length === 0) { showError("لم يتم العثور على روابط. قد يكون الفيديو قيد المعالجة."); return; } links.forEach(link => { if(!link.url) return; const item = document.createElement('div'); item.className = 'result-item'; const qSpan = document.createElement('span'); qSpan.className = 'quality'; qSpan.innerText = `${link.quality}p`; const cBtn = document.createElement('button'); cBtn.className = 'copy-btn'; cBtn.innerText = 'نسخ'; cBtn.onclick = () => { navigator.clipboard.writeText(link.url).then(() => { cBtn.innerText = 'تم النسخ!'; setTimeout(() => { cBtn.innerText = 'نسخ'; }, 2000); }); }; item.appendChild(qSpan); item.appendChild(cBtn); rDiv.appendChild(item); }); }
+        // --- دالة البحث الذكي المحدّثة للتعرف على البنية الجديدة ---
+        function findStreamData(data) {
+            if (typeof data !== 'object' || data === null) return null;
+
+            if (Array.isArray(data) && data.length > 0) {
+                const firstItem = data[0];
+                // النمط الجديد: مصفوفة من الكائنات، كل كائن يحتوي على مفاتيح مثل "2" (للرابط) و "4" (للجودة)
+                if (typeof firstItem === 'object' && firstItem !== null &&
+                    typeof firstItem['2'] === 'string' && firstItem['2'].startsWith('http') &&
+                    typeof firstItem['4'] === 'number') {
+                    return data; // وجدناها!
+                }
+            }
+            
+            // البحث بشكل متكرر في المستويات الأعمق
+            for (const key in data) {
+                const result = findStreamData(data[key]);
+                if (result) return result;
+            }
+
+            return null;
+        }
+
+        function displayResults(links) {
+            const rDiv = document.getElementById('results'); rDiv.innerHTML = '';
+            if (!links || links.length === 0) { showError("لم يتم العثور على روابط. قد يكون الفيديو قيد المعالجة أو أن الرابط غير صحيح."); return; }
+            links.forEach(link => {
+                if(!link.url) return;
+                const item = document.createElement('div'); item.className = 'result-item';
+                const qSpan = document.createElement('span'); qSpan.className = 'quality'; qSpan.innerText = `${link.quality}p`;
+                const cBtn = document.createElement('button'); cBtn.className = 'copy-btn'; cBtn.innerText = 'نسخ';
+                cBtn.onclick = () => { navigator.clipboard.writeText(link.url).then(() => { cBtn.innerText = 'تم النسخ!'; setTimeout(() => { cBtn.innerText = 'نسخ'; }, 2000); }); };
+                item.appendChild(qSpan); item.appendChild(cBtn); rDiv.appendChild(item);
+            });
+        }
         function showError(msg) { const eDiv = document.getElementById('error-message'); eDiv.innerText = msg; eDiv.style.display = 'block'; }
         
         async function extractLinks() {
-            const urlInput = document.getElementById('gdrive-url');
-            const extractBtn = document.getElementById('extract-btn');
-            const loader = document.getElementById('loader');
-            const resultsDiv = document.getElementById('results');
-            const errorDiv = document.getElementById('error-message');
+            const urlInput = document.getElementById('gdrive-url'), extractBtn = document.getElementById('extract-btn'),
+                  loader = document.getElementById('loader'), resultsDiv = document.getElementById('results'),
+                  errorDiv = document.getElementById('error-message');
 
             const gdriveUrl = urlInput.value.trim();
             if (!gdriveUrl) { alert("الرجاء إدخال رابط صالح."); return; }
@@ -70,9 +101,14 @@
 
                 const dataObject = JSON.parse(match[1]);
                 const streamData = findStreamData(dataObject);
-                if (!streamData) { console.error("Data object:", dataObject); throw new Error("فشل البحث الذكي في العثور على بيانات البث."); }
+                if (!streamData) { console.error("Data object for debugging:", dataObject); throw new Error("فشل البحث الذكي في العثور على بيانات البث."); }
                 
-                const videoLinks = streamData.map(s => ({ quality: s[0], type: s[1], url: s[2] }));
+                // --- تعديل طريقة قراءة البيانات بناءً على البنية الجديدة ---
+                const videoLinks = streamData.map(s => ({
+                    quality: s['4'], // الجودة موجودة في المفتاح "4"
+                    type: s['3'],    // النوع موجود في المفتاح "3"
+                    url: s['2']      // الرابط موجود في المفتاح "2"
+                }));
                 displayResults(videoLinks);
 
             } catch (error) { console.error(error); showError(error.message);
